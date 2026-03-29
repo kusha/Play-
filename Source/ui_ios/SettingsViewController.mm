@@ -45,6 +45,8 @@
 
 	[enableAltServerJIT setOn:CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_ALTSTORE_JIT_ENABLED)];
 
+	[enableStikDebugJIT setOn:CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_STIKDEBUG_JIT_ENABLED)];
+
 	NSString* versionString = [NSString stringWithFormat:@"%s - %s", PLAY_VERSION, __DATE__];
 	versionInfoLabel.text = versionString;
 }
@@ -64,6 +66,8 @@
 	CAppConfig::GetInstance().SetPreferenceBoolean(PREFERENCE_AUDIO_ENABLEOUTPUT, enableAudioOutput.isOn);
 
 	CAppConfig::GetInstance().SetPreferenceBoolean(PREFERENCE_ALTSTORE_JIT_ENABLED, enableAltServerJIT.isOn);
+
+	CAppConfig::GetInstance().SetPreferenceBoolean(PREFERENCE_STIKDEBUG_JIT_ENABLED, enableStikDebugJIT.isOn);
 
 	CAppConfig::GetInstance().Save();
 

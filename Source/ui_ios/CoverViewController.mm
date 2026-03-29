@@ -8,12 +8,17 @@
 #import "BackgroundLayer.h"
 #import "CoverViewCell.h"
 #import "AltServerJitService.h"
+#import "StikDebugJitService.h"
 
 static bool IsJitAvailable()
 {
 	//If ppid != 1, it means we're being run in the debugger
 	if(getppid() != 1) return true;
 	if([[AltServerJitService sharedAltServerJitService] jitEnabled])
+	{
+		return true;
+	}
+	if([[StikDebugJitService sharedStikDebugJitService] jitEnabled])
 	{
 		return true;
 	}
@@ -121,6 +126,7 @@ static NSString* const reuseIdentifier = @"coverCell";
 	}
 
 	[[AltServerJitService sharedAltServerJitService] startProcess];
+	[[StikDebugJitService sharedStikDebugJitService] startProcess];
 	[self buildCollectionWithForcedFullScan:NO];
 }
 
@@ -242,6 +248,7 @@ static NSString* const reuseIdentifier = @"coverCell";
 		settingsViewController.allowGsHandlerSelection = true;
 		settingsViewController.completionHandler = ^(bool fullScanRequested) {
 		  [[AltServerJitService sharedAltServerJitService] startProcess];
+		  [[StikDebugJitService sharedStikDebugJitService] startProcess];
 		  if(fullScanRequested)
 		  {
 			  [self buildCollectionWithForcedFullScan:YES];

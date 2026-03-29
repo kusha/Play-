@@ -17,6 +17,8 @@
 
 	IBOutlet UISwitch* enableAltServerJIT;
 
+	IBOutlet UISwitch* enableStikDebugJIT;
+
 	IBOutlet UILabel* versionInfoLabel;
 }
 

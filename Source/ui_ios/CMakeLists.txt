@@ -92,6 +92,7 @@ find_library(IMAGEIO_LIBRARY NAMES ImageIO)
 
 set(OSX_SOURCES
 	AltServerJitService.mm
+	StikDebugJitService.mm
 	AppDelegate.mm
 	BackgroundLayer.m
 	CoverViewCell.m
@@ -113,6 +114,7 @@ set(OSX_SOURCES
 
 set(OSX_HEADERS
 	AltServerJitService.h
+	StikDebugJitService.h
 	AppDelegate.h
 	BackgroundLayer.h
 	CoverViewCell.h

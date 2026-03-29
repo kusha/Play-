@@ -42,6 +42,8 @@ https://spidy123222.github.io/iOS-Debugging-JIT-Guides/
 
 Play! implements automatic JIT activation through AltServer, which requires AltServer to be running on the same network as your iOS device. This can be enabled in the Settings menu of the emulator.
 
+Play! also supports automatic JIT activation through StikDebug on iOS 17.4 and later. StikDebug must be installed on the same device. This can be enabled in the Settings menu of the emulator. For more information about StikDebug, visit: https://github.com/StephenDev0/StikDebug
+
 You can also build the emulator yourself and launch it through Xcode's debugger to enable JIT. This will require installing the iOS SDK. If you don't want to be tethered to Xcode, you can use the "Detach" button in the "Debug" section after attaching the debugger to the app process. After you detach the debugger, the debug process will stay on the app until the app's process ends.
 
 **If you try to play a game without JIT enabled, you will experience a crash when you launch the game.**
