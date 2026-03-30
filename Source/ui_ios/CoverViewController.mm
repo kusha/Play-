@@ -9,9 +9,26 @@
 #import "CoverViewCell.h"
 #import "AltServerJitService.h"
 #import "StikDebugJitService.h"
+#include <sys/mman.h>
+
+static bool TestJitWithMmap()
+{
+	//Try to allocate a page with MAP_JIT — this is the definitive test
+	//for whether JIT code execution is actually permitted.
+	void* ptr = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE | PROT_EXEC,
+	                 MAP_PRIVATE | MAP_ANONYMOUS | MAP_JIT, -1, 0);
+	if(ptr != MAP_FAILED)
+	{
+		munmap(ptr, PAGE_SIZE);
+		return true;
+	}
+	return false;
+}
 
 static bool IsJitAvailable()
 {
+	//Definitive test: can we actually allocate JIT memory?
+	if(TestJitWithMmap()) return true;
 	//If ppid != 1, it means we're being run in the debugger
 	if(getppid() != 1) return true;
 	if([[AltServerJitService sharedAltServerJitService] jitEnabled])
