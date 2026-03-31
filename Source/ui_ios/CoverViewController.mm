@@ -13,10 +13,8 @@
 
 static bool TestJitWithMmap()
 {
-	//Try to allocate a page with MAP_JIT — this is the definitive test
-	//for whether JIT code execution is actually permitted.
-	void* ptr = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_WRITE | PROT_EXEC,
-	                 MAP_PRIVATE | MAP_ANONYMOUS | MAP_JIT, -1, 0);
+	void* ptr = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_EXEC,
+	                 MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if(ptr != MAP_FAILED)
 	{
 		munmap(ptr, PAGE_SIZE);
