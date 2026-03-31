@@ -10,17 +10,53 @@
 #import "AltServerJitService.h"
 #import "StikDebugJitService.h"
 #include <sys/mman.h>
+#include <mach/mach_init.h>
+#include <mach/vm_map.h>
+#include <libkern/OSCacheControl.h>
+#include <unistd.h>
 
 static bool TestJitWithMmap()
 {
-	void* ptr = mmap(NULL, PAGE_SIZE, PROT_READ | PROT_EXEC,
-	                 MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-	if(ptr != MAP_FAILED)
-	{
-		munmap(ptr, PAGE_SIZE);
-		return true;
-	}
-	return false;
+	// iOS 26 TXM JIT test: dual-mapping with StikDebug-mediated region preparation
+	long page_size = sysconf(_SC_PAGESIZE);
+	
+	// Step 1: Allocate RW pages
+	void* rwPage = mmap(NULL, page_size, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0);
+	if(rwPage == MAP_FAILED) return false;
+	
+	// Step 2: vm_remap for RX alias
+	vm_address_t rxPage = 0;
+	vm_prot_t cur_prot, max_prot;
+	kern_return_t kr = vm_remap(mach_task_self(), &rxPage, page_size, 0,
+								VM_FLAGS_ANYWHERE | VM_FLAGS_RANDOM_ADDR,
+								mach_task_self(), (mach_vm_address_t)rwPage,
+								false, &cur_prot, &max_prot, VM_INHERIT_NONE);
+	if(kr != KERN_SUCCESS) { munmap(rwPage, page_size); return false; }
+	
+	// Step 3: Ask StikDebug to prepare region (brk #0xf00d, x16=1)
+	__asm__ volatile(
+		"mov x0, %0\n"
+		"mov x1, %1\n"
+		"mov x16, #1\n"
+		"brk #0xf00d\n"
+		:: "r"(rxPage), "r"((uint64_t)page_size)
+		: "x0", "x1", "x16"
+	);
+	
+	// Step 4: Write a simple "ret" instruction through RW mapping
+	uint32_t retInstr = 0xD65F03C0; // ARM64 ret
+	memcpy(rwPage, &retInstr, sizeof(retInstr));
+	sys_icache_invalidate((void*)rxPage, page_size);
+	
+	// Step 5: Try executing from RX mapping
+	typedef void (*TestFunc)(void);
+	TestFunc func = (TestFunc)rxPage;
+	func();
+	
+	// Cleanup
+	vm_deallocate(mach_task_self(), rxPage, page_size);
+	munmap(rwPage, page_size);
+	return true;
 }
 
 static bool IsJitAvailable()

@@ -34,7 +34,7 @@ static void* ExceptionHandler(void* portPtr)
 
 void StartSimulateDebugger()
 {
-	auto ptrace_ptr = reinterpret_cast<ptrace_ptr_t>(dlsym(RTLD_SELF, "ptrace"));
+	auto ptrace_ptr = reinterpret_cast<ptrace_ptr_t>(dlsym(RTLD_DEFAULT, "ptrace"));
 	if(!ptrace_ptr) return;
 
 	bool wasDebugged = HasDebuggerAttached();
@@ -61,7 +61,7 @@ void StartSimulateDebugger()
 
 void StopSimulateDebugger()
 {
-	auto ptrace_ptr = reinterpret_cast<ptrace_ptr_t>(dlsym(RTLD_SELF, "ptrace"));
+	auto ptrace_ptr = reinterpret_cast<ptrace_ptr_t>(dlsym(RTLD_DEFAULT, "ptrace"));
 	if(ptrace_ptr)
 	{
 		ptrace_ptr(PT_DENY_ATTACH, 0, NULL, 0);
